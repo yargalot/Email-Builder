@@ -27,12 +27,13 @@ module.exports = function(grunt) {
 
     var helpers = require('grunt-lib-contrib').init(grunt),
         options = helpers.options(this),
-        files = grunt.config('EmailBuilder.files');
+        files = grunt.config('EmailBuilder.files'),
+        done = this.async();
 
     // For each of the files
     _.each(files, function(css, html) {
 
-      var doc = grunt.file.read(html), // HTML 
+      var doc = grunt.file.read(html), // HTML
           inline = grunt.file.read(css), // CSS to be inlined
           output = juice(doc, inline);
 
@@ -42,8 +43,8 @@ module.exports = function(grunt) {
       grunt.file.write('email.html', output);
 
 
-      // If a second Css file is provided this will be added in as a style tag.    
-      if(css[1]) 
+      // If a second Css file is provided this will be added in as a style tag.
+      if(css[1])
         var style = grunt.file.read(css[1], 'utf8');
 
       // Js dom - Might use this to sniff out the style pathways for css. Gets title atm
@@ -72,31 +73,34 @@ module.exports = function(grunt) {
         method: 'POST',
         headers : {
           'Accept' :'application/xml\'' ,
-          'Content-Type': 'application/xml\''
+          'Content-Type': 'application/xml\'',
+          'Content-Length': xml.length
         }
       }
       console.log(options);
       console.log(httpOptions);
-            
+
       var req = http.request(httpOptions, function(res) {
         console.log('STATUS: ' + res.statusCode);
         console.log('HEADERS: ' + JSON.stringify(res.headers));
         res.setEncoding('utf8');
         res.on('data', function (chunk) {
           console.log('BODY: ' + chunk);
+          done();
         });
       });
 
       req.on('error', function(e) {
         console.log('problem with request: ' + e.message);
+        done(false);
       });
 
       req.write(xml);
       req.end();
-      
+
       /*
       var command = 'curl -i -X POST -u '+username+':'+password+' -H \'Accept: application/xml\' -H \'Content-Type: application/xml\' '+accountUrl+' -d @data.xml';
-      
+
       grunt.helper('exec', command, function(error, stdout, stderr) {
         console.log('stdout: ' + stdout);
         console.log('stderr: ' + stderr);

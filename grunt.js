@@ -34,7 +34,7 @@ module.exports = function(grunt) {
         litmus : {
           username : 'username',
           password : 'password',
-          url : 'https://yoursite.litmus.com',
+          url : 'yoursite.litmus.com',
           applications : ['gmail', 'hotmail']
         },
         basepath : 'example/'
